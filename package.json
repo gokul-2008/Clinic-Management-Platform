@@ -1,0 +1,11 @@
+{
+  "name": "clinic-management-platform",
+  "version": "1.0.0",
+  "description": "Clinic Management Platform - Full Stack MERN App",
+  "scripts": {
+    "install-all": "npm.cmd install --prefix backend && npm.cmd install --prefix frontend",
+    "backend": "npm.cmd run dev --prefix backend",
+    "frontend": "npm.cmd run dev --prefix frontend",
+    "dev": "npx.cmd concurrently \"npm.cmd run backend\" \"npm.cmd run dev --prefix frontend\""
+  }
+}
