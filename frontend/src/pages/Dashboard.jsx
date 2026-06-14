@@ -144,7 +144,7 @@ export default function Dashboard({ toggleMobileSidebar }) {
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="glass-card d-flex align-items-center justify-content-between">
             <div>
-              <span className="text-secondary fw-semibold">Total Patients</span>
+              <span className="text-white text-secondary fw-semibold">Total Patients</span>
               <h2 className="mt-2 mb-0 fw-bold text-white">{stats.totalPatients}</h2>
             </div>
             <div className="stat-icon-wrapper" style={{ background: 'var(--accent-gradient)' }}>
@@ -156,7 +156,7 @@ export default function Dashboard({ toggleMobileSidebar }) {
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="glass-card d-flex align-items-center justify-content-between">
             <div>
-              <span className="text-secondary fw-semibold">Registered Doctors</span>
+              <span className="text-white text-secondary fw-semibold">Registered Doctors</span>
               <h2 className="mt-2 mb-0 fw-bold text-white">{stats.totalDoctors}</h2>
             </div>
             <div className="stat-icon-wrapper" style={{ background: 'var(--success-gradient)' }}>
@@ -168,7 +168,7 @@ export default function Dashboard({ toggleMobileSidebar }) {
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="glass-card d-flex align-items-center justify-content-between">
             <div>
-              <span className="text-secondary fw-semibold">Total Appointments</span>
+              <span className="text-white text-secondary fw-semibold">Total Appointments</span>
               <h2 className="mt-2 mb-0 fw-bold text-white">{stats.totalAppointments}</h2>
             </div>
             <div className="stat-icon-wrapper" style={{ background: 'var(--purple-gradient)' }}>
@@ -180,7 +180,7 @@ export default function Dashboard({ toggleMobileSidebar }) {
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="glass-card d-flex align-items-center justify-content-between">
             <div>
-              <span className="text-secondary fw-semibold">Total Revenue</span>
+              <span className="text-white text-secondary fw-semibold">Total Revenue</span>
               <h2 className="mt-2 mb-0 fw-bold text-white">${stats.totalRevenue.toLocaleString()}</h2>
             </div>
             <div className="stat-icon-wrapper" style={{ background: 'var(--warning-gradient)' }}>

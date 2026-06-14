@@ -396,7 +396,7 @@ export default function Patients({ toggleMobileSidebar }) {
                     style={{ cursor: 'pointer' }}
                     title="Click to view full medical history"
                   >
-                    <td className="text-secondary fw-semibold">{filteredPatients[filteredPatients.length - 1 - index].patientId || 'N/A'}</td>
+                    <td className="text-white fw-semibold">{filteredPatients[filteredPatients.length - 1 - index].patientId || 'N/A'}</td>
                     <td className="fw-semibold text-primary">{patient.name}</td>
                     <td>{patient.age}</td>
                     <td>
@@ -444,7 +444,7 @@ export default function Patients({ toggleMobileSidebar }) {
               <form onSubmit={handleSubmit}>
                 <div className="modal-body p-4">
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Patient ID</label>
+                    <label className="form-label text-white fw-semibold">Patient ID</label>
                     <input
                       type="text"
                       className="form-control"
@@ -456,7 +456,7 @@ export default function Patients({ toggleMobileSidebar }) {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Patient Name</label>
+                    <label className="form-label text-white fw-semibold">Patient Name</label>
                     <input
                       type="text"
                       className="form-control"
@@ -468,7 +468,7 @@ export default function Patients({ toggleMobileSidebar }) {
                   </div>
                   <div className="row">
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Age</label>
+                      <label className="form-label text-white fw-semibold">Age</label>
                       <input
                         type="number"
                         className="form-control"
@@ -480,16 +480,16 @@ export default function Patients({ toggleMobileSidebar }) {
                       />
                     </div>
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Gender</label>
+                      <label className="form-label text-white fw-semibold">Gender</label>
                       <select className="form-select" name="gender" value={form.gender} onChange={handleInputChange}>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="Male" style={{ color: 'black' }}>Male</option>
+                        <option value="Female" style={{ color: 'black' }}>Female</option>
+                        <option value="Other" style={{ color: 'black' }}>Other</option>
                       </select>
                     </div>
                   </div>
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Phone</label>
+                    <label className="form-label text-white fw-semibold">Phone</label>
                     <input
                       type="text"
                       className="form-control"
@@ -500,7 +500,7 @@ export default function Patients({ toggleMobileSidebar }) {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Address</label>
+                    <label className="form-label text-white fw-semibold">Address</label>
                     <textarea
                       className="form-control"
                       name="address"

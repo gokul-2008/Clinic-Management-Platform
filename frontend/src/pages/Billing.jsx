@@ -278,7 +278,7 @@ export default function Billing({ toggleMobileSidebar }) {
               <form onSubmit={handleSubmit}>
                 <div className="modal-body p-4">
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Patient</label>
+                    <label className="text-white form-label text-secondary fw-semibold">Patient</label>
                     <select
                       className="form-select"
                       name="patientId"
@@ -296,7 +296,7 @@ export default function Billing({ toggleMobileSidebar }) {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Services Rendered</label>
+                    <label className="text-white form-label text-secondary fw-semibold">Services Rendered</label>
                     <input
                       type="text"
                       className="form-control"
@@ -310,7 +310,7 @@ export default function Billing({ toggleMobileSidebar }) {
 
                   <div className="row">
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Total Amount ($)</label>
+                      <label className="text-white form-label text-secondary fw-semibold">Total Amount ($)</label>
                       <input
                         type="number"
                         className="form-control"
@@ -323,17 +323,17 @@ export default function Billing({ toggleMobileSidebar }) {
                     </div>
 
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Payment Status</label>
+                      <label className="text-white form-label text-secondary fw-semibold">Payment Status</label>
                       <select className="form-select" name="paymentStatus" value={form.paymentStatus} onChange={handleInputChange}>
-                        <option value="Paid">Paid</option>
-                        <option value="Unpaid">Unpaid</option>
+                        <option value="Paid" className="text-dark">Paid</option>
+                        <option value="Unpaid" className="text-dark">Unpaid</option>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div className="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
-                  <button type="button" className="btn btn-outline-secondary rounded-3" onClick={() => setShowModal(false)}>Cancel</button>
-                  <button type="submit" className="btn-primary-grad">{editMode ? 'Update' : 'Generate'}</button>
+                  <button type="button" className="text-white btn btn-outline-secondary rounded-3" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="submit" className="text-white btn btn-primary-grad">{editMode ? 'Update' : 'Generate'}</button>
                 </div>
               </form>
             </div>

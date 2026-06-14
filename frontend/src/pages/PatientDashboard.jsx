@@ -525,7 +525,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
             </h5>
             <form onSubmit={handleBookAppointment}>
               <div className="mb-3">
-                <label className="form-label text-secondary fw-semibold text-xs">Attending Physician</label>
+                <label className="text-white form-label text-secondary fw-semibold text-xs">Attending Physician</label>
                 <select 
                   className="form-select" 
                   name="doctorId" 
@@ -540,7 +540,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-secondary fw-semibold text-xs">Date</label>
+                <label className="text-white form-label text-secondary fw-semibold text-xs">Date</label>
                 <input 
                   type="date" 
                   className="form-control" 
@@ -552,7 +552,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-secondary fw-semibold text-xs mb-2">Available Time Slots</label>
+                <label className="text-white form-label text-secondary fw-semibold text-xs mb-2">Available Time Slots</label>
                 
                 {slotWarning && (
                   <div className="text-warning small mb-2">
@@ -562,7 +562,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                 )}
 
                 {availableSlots.length === 0 && !slotWarning && (
-                  <div className="text-secondary small italic mb-2">
+                  <div className="text-white text-secondary small italic mb-2">
                     Please select a doctor and consultation date to view slots.
                   </div>
                 )}
@@ -1051,9 +1051,10 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
               <div className="p-3 rounded-3 mb-4 bg-dark-subtle" style={{ border: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
                 <form onSubmit={handleFileUpload} className="row g-2 align-items-end">
                   <div className="col-12 col-md-5">
-                    <label className="form-label text-secondary fw-semibold text-xs mb-1">Document Title</label>
+                    <label className="text-dark form-label text-secondary fw-semibold text-xs mb-1">Document Title</label>
                     <input
                       type="text"
+                      style={{ color: '#161515', backgroundColor: '#212529', border: '#495057 1px solid' }}
                       className="form-control form-control-sm text-sm"
                       placeholder="e.g. Blood Work / MRI Scan"
                       value={docTitle}
@@ -1062,9 +1063,10 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                     />
                   </div>
                   <div className="col-12 col-md-4">
-                    <label className="form-label text-secondary fw-semibold text-xs mb-1">Select File (PDF, PNG, JPG)</label>
+                    <label className="text-dark form-label text-secondary fw-semibold text-xs mb-1">Select File (PDF, PNG, JPG)</label>
                     <input
                       type="file"
+                      style={{ color: '#161515', backgroundColor: '#212529', border: '#495057 1px solid' }}
                       id="patientDocFileInput"
                       className="form-control form-control-sm text-sm"
                       accept=".pdf,.png,.jpg,.jpeg"

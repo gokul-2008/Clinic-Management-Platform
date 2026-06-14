@@ -232,7 +232,7 @@ export default function Doctors({ toggleMobileSidebar }) {
               <form onSubmit={handleSubmit}>
                 <div className="modal-body p-4" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Doctor Name</label>
+                    <label className="text-dark form-label text-secondary fw-semibold">Doctor Name</label>
                     <input
                       type="text"
                       className="form-control"
@@ -244,7 +244,7 @@ export default function Doctors({ toggleMobileSidebar }) {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Specialization</label>
+                    <label className="text-dark form-label text-secondary fw-semibold">Specialization</label>
                     <input
                       type="text"
                       className="form-control"
@@ -257,7 +257,7 @@ export default function Doctors({ toggleMobileSidebar }) {
                   </div>
                   <div className="row">
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Contact Phone</label>
+                      <label className="text-dark form-label text-secondary fw-semibold">Contact Phone</label>
                       <input
                         type="text"
                         className="form-control"
@@ -268,7 +268,7 @@ export default function Doctors({ toggleMobileSidebar }) {
                       />
                     </div>
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Consultation Fee ($)</label>
+                      <label className="text-dark form-label text-secondary fw-semibold">Consultation Fee ($)</label>
                       <input
                         type="number"
                         className="form-control"
@@ -282,7 +282,7 @@ export default function Doctors({ toggleMobileSidebar }) {
                   </div>
 
                   <div className="mb-2 d-flex justify-content-between align-items-center">
-                    <label className="form-label text-secondary fw-semibold m-0">Availability Schedule</label>
+                    <label className="text-dark form-label text-secondary fw-semibold m-0">Availability Schedule</label>
                     <button type="button" className="btn btn-outline-primary btn-sm rounded-pill py-0.5 px-2" onClick={addAvailabilityRow}>
                       <i className="bi bi-plus"></i> Add Day
                     </button>

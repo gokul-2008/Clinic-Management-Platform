@@ -516,7 +516,7 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
                   <div className="row">
                     {/* Patient Selection */}
                     <div className="col-12 col-md-6 mb-3">
-                      <label className="form-label text-secondary fw-semibold">Attending Patient</label>
+                      <label className="form-label text-white fw-semibold">Attending Patient</label>
                       <select className="form-select" name="patientId" value={form.patientId} onChange={handleInputChange} required>
                         {patients.map((pat) => (
                           <option key={pat._id} value={pat._id}>{pat.name} ({pat.phone})</option>
@@ -526,7 +526,7 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
 
                     {/* Attending Doctor */}
                     <div className="col-12 col-md-6 mb-3">
-                      <label className="form-label text-secondary fw-semibold">Attending Doctor</label>
+                      <label className="form-label text-white fw-semibold">Attending Doctor</label>
                       <select className="form-select" name="doctorId" value={form.doctorId} onChange={handleInputChange} required>
                         {doctors.map((doc) => (
                           <option key={doc._id} value={doc._id}>Dr. {doc.name} ({doc.specialty})</option>
@@ -538,7 +538,7 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
                   <div className="row">
                     {/* Linked Appointment (Optional) */}
                     <div className="col-12 col-md-6 mb-3">
-                      <label className="form-label text-secondary fw-semibold">Link Active Appointment (Optional)</label>
+                      <label className="form-label text-white fw-semibold">Link Active Appointment (Optional)</label>
                       <select className="form-select" name="appointmentId" value={form.appointmentId} onChange={handleInputChange}>
                         <option value="">-- No Linked Appointment --</option>
                         {appointments
@@ -553,17 +553,17 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
 
                     {/* BP */}
                     <div className="col-4 col-md-2 mb-3">
-                      <label className="form-label text-secondary fw-semibold">Vitals: BP</label>
+                      <label className="form-label text-white fw-semibold">Vitals: BP</label>
                       <input type="text" className="form-control" name="bloodPressure" value={form.vitals.bloodPressure} onChange={handleVitalsChange} placeholder="120/80" />
                     </div>
                     {/* Heart Rate */}
                     <div className="col-4 col-md-2 mb-3">
-                      <label className="form-label text-secondary fw-semibold">Pulse (bpm)</label>
+                      <label className="form-label text-white fw-semibold">Pulse (bpm)</label>
                       <input type="number" className="form-control" name="heartRate" value={form.vitals.heartRate} onChange={handleVitalsChange} placeholder="72" />
                     </div>
                     {/* Weight */}
                     <div className="col-4 col-md-2 mb-3">
-                      <label className="form-label text-secondary fw-semibold">Weight (kg)</label>
+                      <label className="form-label text-white fw-semibold">Weight (kg)</label>
                       <input type="number" className="form-control" name="weight" value={form.vitals.weight} onChange={handleVitalsChange} placeholder="70" />
                     </div>
                   </div>
@@ -571,7 +571,7 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
                   {/* Diagnosis */}
                   <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                      <label className="form-label text-secondaryfw-semibold m-0">Clinical Diagnosis</label>
+                      <label className="form-label text-white fw-semibold m-0">Clinical Diagnosis</label>
                       {form.diagnosis && (
                         <button 
                           type="button" 
@@ -610,7 +610,7 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
 
                   {/* Notes */}
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Physician Notes / Symptoms</label>
+                    <label className="form-label text-white fw-semibold">Physician Notes / Symptoms</label>
                     <textarea className="form-control" name="notes" value={form.notes} onChange={handleInputChange} rows="2" placeholder="Describe symptoms and follow-up plans..." />
                   </div>
 
@@ -635,9 +635,9 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
                       </div>
                     )}
 
-                    <div className="row g-2 align-items-end bg-secondary-subtle p-3 rounded-3" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                    <div className="row g-2 align-items-end bg-blue p-3 rounded-3 border border-secondary" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
                       <div className="col-12 col-sm-3">
-                        <label className="form-label text-secondary fw-semibold text-xs">Medication Name</label>
+                        <label className="form-label text-white fw-semibold text-xs">Medication Name</label>
                         <select 
                           className="form-select form-select-sm" 
                           value={newMed.drugName} 
@@ -646,9 +646,9 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
                             setNewMed({ ...newMed, drugName: e.target.value, dosage: selected ? `1 ${selected.unit}` : '' });
                           }}
                         >
-                          <option value="">-- Select stock med --</option>
+                          <option value="" style={{ color: 'black' }}>-- Select stock med --</option>
                           {availableMeds.map(m => (
-                            <option key={m._id} value={m.name}>
+                            <option key={m._id} value={m.name} style={{ color: 'black' }}>
                               {m.name.toUpperCase()} ({m.stock} {m.unit} left)
                             </option>
                           ))}

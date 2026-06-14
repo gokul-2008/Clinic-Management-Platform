@@ -293,7 +293,7 @@ export default function Appointments({ toggleMobileSidebar }) {
               <form onSubmit={handleSubmit}>
                 <div className="modal-body p-4">
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Patient</label>
+                    <label className="text-dark form-label text-secondary fw-semibold">Patient</label>
                     <select
                       className="form-select"
                       name="patientId"
@@ -311,7 +311,7 @@ export default function Appointments({ toggleMobileSidebar }) {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Doctor</label>
+                    <label className="text-dark form-label text-secondary fw-semibold">Doctor</label>
                     <select
                       className="form-select"
                       name="doctorId"
@@ -329,7 +329,7 @@ export default function Appointments({ toggleMobileSidebar }) {
 
                   <div className="row">
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Date</label>
+                      <label className="text-dark form-label text-secondary fw-semibold">Date</label>
                       <input
                         type="date"
                         className="form-control"
@@ -340,7 +340,7 @@ export default function Appointments({ toggleMobileSidebar }) {
                       />
                     </div>
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Time Slot</label>
+                      <label className="text-dark form-label text-secondary fw-semibold">Time Slot</label>
                       <input
                         type="text"
                         className="form-control"
@@ -354,7 +354,7 @@ export default function Appointments({ toggleMobileSidebar }) {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Status</label>
+                    <label className="text-dark form-label text-secondary fw-semibold">Status</label>
                     <select className="form-select" name="status" value={form.status} onChange={handleInputChange}>
                       <option value="Booked">Booked</option>
                       <option value="Completed">Completed</option>

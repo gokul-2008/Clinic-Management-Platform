@@ -200,7 +200,7 @@ export default function Inventory({ toggleMobileSidebar }) {
               <form onSubmit={handleSubmit}>
                 <div className="modal-body p-4">
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Medicine Name</label>
+                    <label className="text-white form-label text-secondary fw-semibold">Medicine Name</label>
                     <input
                       type="text"
                       className="form-control"
@@ -214,7 +214,7 @@ export default function Inventory({ toggleMobileSidebar }) {
                   </div>
                   <div className="row">
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Stock Quantity</label>
+                      <label className="text-white form-label text-secondary fw-semibold">Stock Quantity</label>
                       <input
                         type="number"
                         className="form-control"
@@ -227,7 +227,7 @@ export default function Inventory({ toggleMobileSidebar }) {
                       />
                     </div>
                     <div className="col mb-3">
-                      <label className="form-label text-secondary fw-semibold">Price per Unit ($)</label>
+                      <label className="text-white form-label text-secondary fw-semibold">Price per Unit ($)</label>
                       <input
                         type="number"
                         className="form-control"
@@ -242,18 +242,18 @@ export default function Inventory({ toggleMobileSidebar }) {
                     </div>
                   </div>
                   <div className="mb-3">
-                    <label className="form-label text-secondary fw-semibold">Dispense Unit</label>
+                    <label className="text-white form-label text-secondary fw-semibold">Dispense Unit</label>
                     <select className="form-select" name="unit" value={form.unit} onChange={handleInputChange}>
-                      <option value="tablets">tablets</option>
-                      <option value="capsules">capsules</option>
-                      <option value="bottles">bottles</option>
-                      <option value="tubes">tubes</option>
-                      <option value="vials">vials</option>
+                      <option value="tablets " className="text-dark">tablets</option>
+                      <option value="capsules" className="text-dark">capsules</option>
+                      <option value="bottles" className="text-dark">bottles</option>
+                      <option value="tubes" className="text-dark">tubes</option>
+                      <option value="vials" className="text-dark">vials</option>
                     </select>
                   </div>
                 </div>
                 <div className="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
-                  <button type="button" className="btn btn-outline-secondary rounded-3" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="button" className="text-white btn btn-outline-secondary rounded-3" onClick={() => setShowModal(false)}>Cancel</button>
                   <button type="submit" className="btn-primary-grad">{editMode ? 'Update' : 'Register'}</button>
                 </div>
               </form>
