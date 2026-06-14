@@ -1,7 +1,7 @@
 const getApiBase = () => {
-  // 1. If VITE_API_BASE is injected by the build process, use it
-  if (import.meta.env.VITE_API_BASE) {
-    return import.meta.env.VITE_API_BASE;
+  // 1. If VITE_API_URL is injected by the build process, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
   }
   
   // 2. If running in a browser locally, fallback to localhost
