@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { downloadPrescriptionPDF } from '../utils/pdfGenerator';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE, STATIC_BASE } from '../config';
 
 export default function PatientDashboard({ toggleMobileSidebar }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -803,7 +803,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                           {evt.type === 'LabReport' && (
                             <div className="mt-2 d-flex justify-content-end gap-2">
                               <a 
-                                href={`http://localhost:5000${evt.data.fileUrl}`} 
+                                href={`${STATIC_BASE}${evt.data.fileUrl}`} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 className="btn btn-outline-info btn-sm py-1 px-2.5 rounded-pill d-flex align-items-center gap-1"
@@ -1120,7 +1120,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                             <td className="text-secondary text-xs">{new Date(doc.createdAt).toLocaleDateString()}</td>
                             <td className="text-end">
                               <a 
-                                href={`http://localhost:5000${doc.fileUrl}`} 
+                                href={`${STATIC_BASE}${doc.fileUrl}`} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 className="btn btn-outline-info btn-sm me-2 border-0 py-0.5 px-2"

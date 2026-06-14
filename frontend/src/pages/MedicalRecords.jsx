@@ -3,7 +3,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { downloadPrescriptionPDF } from '../utils/pdfGenerator';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE, STATIC_BASE } from '../config';
 
 export default function MedicalRecords({ toggleMobileSidebar }) {
   const [records, setRecords] = useState([]);

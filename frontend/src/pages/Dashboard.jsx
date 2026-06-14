@@ -18,7 +18,7 @@ ChartJS.register(
 );
 
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE, STATIC_BASE } from '../config';
 
 export default function Dashboard({ toggleMobileSidebar }) {
   const [stats, setStats] = useState({
