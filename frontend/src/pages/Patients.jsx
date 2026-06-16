@@ -396,7 +396,7 @@ export default function Patients({ toggleMobileSidebar }) {
                     style={{ cursor: 'pointer' }}
                     title="Click to view full medical history"
                   >
-                    <td className="text-white fw-semibold">{filteredPatients[filteredPatients.length - 1 - index].patientId || 'N/A'}</td>
+                     <td className="text-white fw-semibold">{patient.patientId || 'N/A'}</td>
                     <td className="fw-semibold text-primary">{patient.name}</td>
                     <td>{patient.age}</td>
                     <td>
@@ -407,6 +407,16 @@ export default function Patients({ toggleMobileSidebar }) {
                     <td>{patient.phone}</td>
                     <td className="text-truncate" style={{ maxWidth: '200px' }}>{patient.address}</td>
                     <td className="text-end">
+                      <button 
+                        className="btn btn-outline-primary btn-sm me-2 rounded-3 border-0" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDetailsModal(patient);
+                        }}
+                        title="View Clinical Timeline"
+                      >
+                        <i className="bi bi-eye-fill"></i>
+                      </button>
                       {role !== 'Doctor' && (
                         <button 
                           className="btn btn-outline-info btn-sm me-2 rounded-3 border-0" 
