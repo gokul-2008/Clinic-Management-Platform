@@ -18,7 +18,7 @@ export const createCheckoutSession = async (req, res) => {
     // Graceful fallback for mock testing
     if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('mock')) {
       console.log('Stripe key is empty or placeholder. Generating local mock payment redirect...');
-      const mockCheckoutUrl = `${frontendUrl}/?checkout_session=mock_session_id&bill_id=${billId}`;
+      const mockCheckoutUrl = `${frontendUrl}/patient-dashboard?checkout_session=mock_session_id&bill_id=${billId}`;
       return res.status(200).json({ url: mockCheckoutUrl });
     }
 
@@ -38,8 +38,8 @@ export const createCheckoutSession = async (req, res) => {
         }
       ],
       mode: 'payment',
-      success_url: `${frontendUrl}/?checkout_session={CHECKOUT_SESSION_ID}&bill_id=${billId}`,
-      cancel_url: `${frontendUrl}/?payment_failed=true`
+      success_url: `${frontendUrl}/patient-dashboard?checkout_session={CHECKOUT_SESSION_ID}&bill_id=${billId}`,
+      cancel_url: `${frontendUrl}/patient-dashboard?payment_failed=true`
     });
 
     res.status(200).json({ url: session.url });
