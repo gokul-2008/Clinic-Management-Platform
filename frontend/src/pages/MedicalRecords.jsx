@@ -49,6 +49,11 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
   // Prescription builder state
   const [newMed, setNewMed] = useState({ drugName: '', dosage: '', frequency: 'Once a day', duration: '5 Days' });
 
+  // AI Medical Report Summarizer states
+  const [reportInput, setReportInput] = useState('');
+  const [summaryResult, setSummaryResult] = useState(null);
+  const [summarizing, setSummarizing] = useState(false);
+
   // Available medicines and AI states
   const [availableMeds, setAvailableMeds] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
@@ -222,6 +227,34 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
     } finally {
       setAiLoading(false);
     }
+  };
+
+  const handleSummarizeReport = async (e) => {
+    e.preventDefault();
+    if (!reportInput.trim()) return;
+    setSummarizing(true);
+    setSummaryResult(null);
+    try {
+      const res = await axios.post(`${API_BASE}/ai/summarize-report`, {
+        reportText: reportInput
+      }, getHeaders());
+      setSummaryResult(res.data);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate report summary. Please try again.');
+    } finally {
+      setSummarizing(false);
+    }
+  };
+
+  const handleReportFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setReportInput(event.target.result);
+    };
+    reader.readAsText(file);
   };
 
   const openEditModal = (rec) => {
@@ -402,6 +435,81 @@ export default function MedicalRecords({ toggleMobileSidebar }) {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+            </div>
+
+            {/* AI Medical Report Summarizer Card */}
+            <div className="glass-card mt-3">
+              <h5 className="text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                <i className="bi bi-file-earmark-medical text-primary"></i>
+                AI Report Summarizer
+              </h5>
+              <p className="text-secondary small mb-3" style={{ fontSize: '13px' }}>
+                Upload a `.txt` clinical report or enter/paste the report text below to generate a structured AI summary.
+              </p>
+
+              <form onSubmit={handleSummarizeReport}>
+                <div className="mb-3">
+                  <label className="form-label text-secondary fw-semibold text-xs mb-1">Upload Report File (.txt)</label>
+                  <input 
+                    type="file" 
+                    className="form-control form-control-sm text-xs bg-dark-subtle text-white" 
+                    accept=".txt"
+                    onChange={handleReportFileChange}
+                    style={{ border: '1px solid rgba(255,255,255,0.05)' }}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label text-secondary fw-semibold text-xs mb-1">Or Paste Report Text</label>
+                  <textarea 
+                    className="form-control text-xs" 
+                    rows="4" 
+                    placeholder="Enter report logs, lab findings, or notes..."
+                    value={reportInput}
+                    onChange={(e) => setReportInput(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary-grad btn-sm w-100 py-2" disabled={summarizing}>
+                  {summarizing ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Summarizing...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-magic me-2"></i>
+                      Summarize Report
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {summaryResult && (
+                <div className="mt-3 pt-3 border-top border-secondary-subtle">
+                  <h6 className="text-info fw-bold mb-2 text-xs d-flex align-items-center gap-1">
+                    <i className="bi bi-clipboard2-pulse"></i>
+                    AI Report Summary
+                  </h6>
+                  <div className="d-flex flex-column gap-2 text-xs text-secondary" style={{ fontSize: '12px' }}>
+                    <div>
+                      <strong className="text-white d-block">Key Findings:</strong>
+                      <span>{summaryResult.keyFindings}</span>
+                    </div>
+                    <div>
+                      <strong className="text-white d-block">Suspected Diagnosis:</strong>
+                      <span className="text-info fw-semibold">{summaryResult.suspectedDiagnosis}</span>
+                    </div>
+                    <div>
+                      <strong className="text-white d-block">Recommended Medications:</strong>
+                      <span>{summaryResult.recommendedMedications}</span>
+                    </div>
+                    <div>
+                      <strong className="text-white d-block">Follow-Up Plan:</strong>
+                      <span>{summaryResult.followUpPlan}</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

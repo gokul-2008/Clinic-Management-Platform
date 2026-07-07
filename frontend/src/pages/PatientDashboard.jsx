@@ -59,10 +59,20 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
   });
 
   // Timeline Filters and Tab States
-  const [timelineTab, setTimelineTab] = useState('timeline'); // 'timeline', 'visits', 'appointments', 'billing', 'reports'
+  const [timelineTab, setTimelineTab] = useState('timeline'); // 'timeline', 'visits', 'appointments', 'billing', 'reports', 'symptom-checker', 'chatbot'
   const [timelineStartDate, setTimelineStartDate] = useState('');
   const [timelineEndDate, setTimelineEndDate] = useState('');
   const [timelineDoctorFilter, setTimelineDoctorFilter] = useState('');
+
+  // AI Symptom Checker & Chatbot States
+  const [symptomsInput, setSymptomsInput] = useState('');
+  const [symptomCheckResult, setSymptomCheckResult] = useState(null);
+  const [symptomChecking, setSymptomChecking] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'ai', text: 'Hello! I am your CarePulse Virtual Receptionist. How can I help you today? You can ask about our clinic hours, services, available specialists, or booking appointments.' }
+  ]);
+  const [chatLoading, setChatLoading] = useState(false);
 
   // Helper to extract unique doctors from records/appointments
   const getTimelineDoctors = () => {
@@ -173,6 +183,48 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
   const getHeaders = () => ({
     headers: { Authorization: `Bearer ${token}` }
   });
+
+  const handleCheckSymptoms = async (e) => {
+    e.preventDefault();
+    if (!symptomsInput.trim()) return;
+    setSymptomChecking(true);
+    setSymptomCheckResult(null);
+    try {
+      const res = await axios.post(`${API_BASE}/ai/check-symptoms`, {
+        symptoms: symptomsInput
+      }, getHeaders());
+      setSymptomCheckResult(res.data);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to analyze symptoms. Please try again.');
+    } finally {
+      setSymptomChecking(false);
+    }
+  };
+
+  const handleSendChatMessage = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+    
+    const userMsg = { sender: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, userMsg]);
+    setChatInput('');
+    setChatLoading(true);
+
+    try {
+      const res = await axios.post(`${API_BASE}/ai/chatbot`, {
+        message: userMsg.text,
+        history: chatMessages.slice(-10) // last 10 messages for context
+      }, getHeaders());
+      
+      setChatMessages(prev => [...prev, { sender: 'ai', text: res.data.reply }]);
+    } catch (err) {
+      console.error(err);
+      setChatMessages(prev => [...prev, { sender: 'ai', text: 'Sorry, I am having trouble connecting to the CarePulse server right now.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   const loadData = async () => {
     if (!patientId) {
@@ -657,6 +709,26 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
             >
               <i className="bi bi-file-earmark-medical"></i>
               <span>Diagnostic Reports</span>
+            </button>
+            <button
+              onClick={() => setTimelineTab('symptom-checker')}
+              type="button"
+              className={`btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-2 ${
+                timelineTab === 'symptom-checker' ? 'btn-primary shadow' : 'btn-outline-secondary'
+              }`}
+            >
+              <i className="bi bi-heart-pulse"></i>
+              <span>AI Symptom Checker</span>
+            </button>
+            <button
+              onClick={() => setTimelineTab('chatbot')}
+              type="button"
+              className={`btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-2 ${
+                timelineTab === 'chatbot' ? 'btn-primary shadow' : 'btn-outline-secondary'
+              }`}
+            >
+              <i className="bi bi-robot"></i>
+              <span>Healthcare Assistant</span>
             </button>
           </div>
 
@@ -1143,6 +1215,153 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* AI Symptom Checker Tab */}
+          {timelineTab === 'symptom-checker' && (
+            <div className="glass-card">
+              <h5 className="text-white fw-bold mb-4 d-flex align-items-center gap-2">
+                <i className="bi bi-heart-pulse text-primary"></i>
+                AI Symptom Checker
+              </h5>
+              
+              <div className="alert alert-info border-0 rounded-3 mb-4 p-3 d-flex align-items-start gap-2" style={{ backgroundColor: 'rgba(14, 165, 233, 0.1)', color: '#0ea5e9' }}>
+                <i className="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+                <div>
+                  <strong className="d-block mb-1">Disclaimer & Warning</strong>
+                  <span className="text-sm">
+                    This symptom checker provides informational guidance based on AI analysis and does not constitute formal medical diagnosis, treatment, or advice. Always consult a qualified medical professional for health concerns. In case of emergency, immediately contact emergency services.
+                  </span>
+                </div>
+              </div>
+
+              <form onSubmit={handleCheckSymptoms} className="mb-4">
+                <div className="mb-3">
+                  <label className="form-label text-secondary fw-semibold">Describe Your Symptoms</label>
+                  <textarea 
+                    className="form-control"
+                    rows="4"
+                    placeholder="e.g. I have a dry cough, low-grade fever of 100°F, and mild body aches for the last two days..."
+                    value={symptomsInput}
+                    onChange={(e) => setSymptomsInput(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary-grad" disabled={symptomChecking}>
+                  {symptomChecking ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Analyzing Symptoms...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-magic me-2"></i>
+                      Analyze Symptoms
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {symptomCheckResult && (
+                <div className="mt-4 pt-4 border-top border-secondary-subtle">
+                  <h6 className="text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i className="bi bi-clipboard2-pulse text-primary"></i>
+                    AI Analysis Results
+                  </h6>
+
+                  <div className="row g-3">
+                    <div className="col-12 col-md-4">
+                      <div className="p-3 rounded-3 bg-dark-subtle h-100" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                        <span className="text-secondary small d-block mb-1">Urgency Level</span>
+                        <span className={`badge-status badge-${symptomCheckResult.urgency?.toLowerCase() || 'booked'} fs-6 py-1 px-3`}>
+                          {symptomCheckResult.urgency || 'Normal'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-8">
+                      <div className="p-3 rounded-3 bg-dark-subtle h-100" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                        <span className="text-secondary small d-block mb-1">Recommended Specialist / Department</span>
+                        <strong className="text-white fs-5">{symptomCheckResult.recommendedDepartment || 'General Physician'}</strong>
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="p-3 rounded-3 bg-dark-subtle" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                        <span className="text-secondary small d-block mb-2">Possible Conditions Highlighted</span>
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {symptomCheckResult.possibleConditions?.map((cond, idx) => (
+                            <span key={idx} className="badge bg-secondary text-dark rounded-pill px-3 py-1.5 fw-medium">
+                              {cond}
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-secondary small d-block mb-1">Triage Details</span>
+                        <p className="text-light m-0 text-sm">{symptomCheckResult.explanation}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* AI Healthcare Chatbot Tab */}
+          {timelineTab === 'chatbot' && (
+            <div className="glass-card d-flex flex-column" style={{ height: '550px' }}>
+              <div className="border-bottom border-secondary-subtle pb-3 mb-3 d-flex align-items-center gap-2">
+                <i className="bi bi-robot text-primary fs-4"></i>
+                <div>
+                  <h5 className="text-white fw-bold m-0">CarePulse Virtual Assistant</h5>
+                  <small className="text-secondary">AI reception assistant & general guide</small>
+                </div>
+              </div>
+
+              {/* Chat messages viewport */}
+              <div className="flex-grow-1 overflow-auto mb-3 p-2 d-flex flex-column gap-3" style={{ maxHeight: '350px', minHeight: '260px' }}>
+                {chatMessages.map((msg, idx) => (
+                  <div key={idx} className={`d-flex ${msg.sender === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
+                    <div 
+                      className={`p-3 rounded-3 text-sm max-w-75 ${
+                        msg.sender === 'user' 
+                          ? 'btn-primary-grad text-white rounded-bottom-end-0' 
+                          : 'bg-dark-subtle text-light rounded-bottom-start-0'
+                      }`}
+                      style={msg.sender !== 'user' ? { 
+                        border: '1px solid rgba(255,255,255,0.03)', 
+                        backgroundColor: 'rgba(255,255,255,0.02)'
+                      } : {}}
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                {chatLoading && (
+                  <div className="d-flex justify-content-start">
+                    <div className="bg-dark-subtle text-secondary p-3 rounded-3 text-sm d-flex align-items-center gap-2" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                      <span className="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
+                      Assistant is typing...
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Input section */}
+              <form onSubmit={handleSendChatMessage} className="mt-auto border-top border-secondary-subtle pt-3">
+                <div className="input-group">
+                  <input 
+                    type="text" 
+                    className="form-control"
+                    placeholder="Ask about clinic hours, booking assistance, services..." 
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    disabled={chatLoading}
+                    required
+                  />
+                  <button type="submit" className="btn-primary-grad px-4" disabled={chatLoading}>
+                    <i className="bi bi-send-fill"></i>
+                  </button>
+                </div>
+              </form>
             </div>
           )}
           </div>
