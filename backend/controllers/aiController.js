@@ -22,23 +22,21 @@ const generateWithFallback = async (genAI, prompt) => {
         return text;
       }
     } catch (err) {
-      console.warn(`[AI Warning] Model ${modelName} failed:`, err.message);
+      const errMsg = String(err?.message || err || '').toLowerCase();
+      console.warn(`[AI Warning] Model ${modelName} failed:`, errMsg);
       lastError = err;
+      
+      // If it is a clear API key validation issue, throw it immediately to avoid looping
       if (
-        err.message.includes('404') ||
-        err.message.includes('not found') ||
-        err.message.includes('not supported') ||
-        err.message.includes('ModelService')
-      ) {
-        continue;
-      }
-      if (
-        err.message.includes('API key') ||
-        err.message.includes('API_KEY') ||
-        err.message.includes('invalid')
+        errMsg.includes('api key') || 
+        errMsg.includes('api_key') || 
+        errMsg.includes('key is invalid') || 
+        errMsg.includes('unauthorized') || 
+        errMsg.includes('400')
       ) {
         throw err;
       }
+      // Otherwise, continue to try the next model in the fallback cascade
     }
   }
   throw lastError || new Error('All models failed to resolve the prompt');
