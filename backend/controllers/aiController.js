@@ -1,5 +1,49 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Fallback logic to check multiple model names if one throws a 404/not supported error
+const generateWithFallback = async (genAI, prompt) => {
+  const modelsToTry = [
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-pro',
+    'gemini-1.0-pro'
+  ];
+  let lastError = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`[AI] Trying model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      if (text) {
+        console.log(`[AI] Success with model: ${modelName}`);
+        return text;
+      }
+    } catch (err) {
+      console.warn(`[AI Warning] Model ${modelName} failed:`, err.message);
+      lastError = err;
+      if (
+        err.message.includes('404') ||
+        err.message.includes('not found') ||
+        err.message.includes('not supported') ||
+        err.message.includes('ModelService')
+      ) {
+        continue;
+      }
+      if (
+        err.message.includes('API key') ||
+        err.message.includes('API_KEY') ||
+        err.message.includes('invalid')
+      ) {
+        throw err;
+      }
+    }
+  }
+  throw lastError || new Error('All models failed to resolve the prompt');
+};
+
 export const analyzePrescription = async (req, res) => {
   try {
     const { diagnosis, symptoms, prescriptions } = req.body;
@@ -23,7 +67,6 @@ export const analyzePrescription = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
       You are a clinical assistant AI. Review this patient case and output a JSON response.
@@ -39,9 +82,7 @@ export const analyzePrescription = async (req, res) => {
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateWithFallback(genAI, prompt);
 
     // Robustly extract JSON block to avoid failures due to LLM preambles or markdown fences
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -90,7 +131,6 @@ export const checkSymptoms = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
       You are a clinical symptom-triage assistant. Review this symptom description and output a JSON response.
@@ -105,9 +145,7 @@ export const checkSymptoms = async (req, res) => {
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateWithFallback(genAI, prompt);
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -150,7 +188,6 @@ export const summarizeReport = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
       You are a clinical report summarization assistant. Summarize the following medical report and output a JSON response.
@@ -165,9 +202,7 @@ export const summarizeReport = async (req, res) => {
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateWithFallback(genAI, prompt);
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -213,7 +248,6 @@ export const healthcareChatbot = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     let historyPrompt = "";
     if (history && history.length > 0) {
@@ -241,9 +275,8 @@ export const healthcareChatbot = async (req, res) => {
       Assistant:
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const reply = response.text().trim();
+    const text = await generateWithFallback(genAI, prompt);
+    const reply = text.trim();
     
     res.status(200).json({ reply });
   } catch (error) {
