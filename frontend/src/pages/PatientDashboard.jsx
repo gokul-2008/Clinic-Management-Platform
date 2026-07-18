@@ -1272,7 +1272,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
 
                   <div className="row g-3">
                     <div className="col-12 col-md-4">
-                      <div className="p-3 rounded-3 bg-dark-subtle h-100" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                      <div className="p-3 rounded-3 h-100" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                         <span className="text-secondary small d-block mb-1">Urgency Level</span>
                         <span className={`badge-status badge-${symptomCheckResult.urgency?.toLowerCase() || 'booked'} fs-6 py-1 px-3`}>
                           {symptomCheckResult.urgency || 'Normal'}
@@ -1280,13 +1280,13 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                       </div>
                     </div>
                     <div className="col-12 col-md-8">
-                      <div className="p-3 rounded-3 bg-dark-subtle h-100" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                      <div className="p-3 rounded-3 h-100" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                         <span className="text-secondary small d-block mb-1">Recommended Specialist / Department</span>
                         <strong className="text-white fs-5">{symptomCheckResult.recommendedDepartment || 'General Physician'}</strong>
                       </div>
                     </div>
                     <div className="col-12">
-                      <div className="p-3 rounded-3 bg-dark-subtle" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                      <div className="p-3 rounded-3" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                         <span className="text-secondary small d-block mb-2">Possible Conditions Highlighted</span>
                         <div className="d-flex flex-wrap gap-2 mb-3">
                           {symptomCheckResult.possibleConditions?.map((cond, idx) => (
@@ -1296,7 +1296,7 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                           ))}
                         </div>
                         <span className="text-secondary small d-block mb-1">Triage Details</span>
-                        <p className="text-light m-0 text-sm">{symptomCheckResult.explanation}</p>
+                        <p className="m-0 text-sm text-secondary">{symptomCheckResult.explanation}</p>
                       </div>
                     </div>
                   </div>
@@ -1324,11 +1324,12 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                       className={`p-3 rounded-3 text-sm max-w-75 ${
                         msg.sender === 'user' 
                           ? 'btn-primary-grad text-white rounded-bottom-end-0' 
-                          : 'bg-dark-subtle text-light rounded-bottom-start-0'
+                          : 'rounded-bottom-start-0'
                       }`}
                       style={msg.sender !== 'user' ? { 
-                        border: '1px solid rgba(255,255,255,0.03)', 
-                        backgroundColor: 'rgba(255,255,255,0.02)'
+                        border: '1px solid var(--border-color)', 
+                        backgroundColor: 'var(--bg-secondary)',
+                        color: 'var(--text-primary)'
                       } : {}}
                     >
                       {msg.text}
@@ -1337,7 +1338,14 @@ export default function PatientDashboard({ toggleMobileSidebar }) {
                 ))}
                 {chatLoading && (
                   <div className="d-flex justify-content-start">
-                    <div className="bg-dark-subtle text-secondary p-3 rounded-3 text-sm d-flex align-items-center gap-2" style={{ border: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                    <div 
+                      className="p-3 rounded-3 text-sm d-flex align-items-center gap-2" 
+                      style={{ 
+                        border: '1px solid var(--border-color)', 
+                        backgroundColor: 'var(--bg-secondary)',
+                        color: 'var(--text-secondary)'
+                      }}
+                    >
                       <span className="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
                       Assistant is typing...
                     </div>
