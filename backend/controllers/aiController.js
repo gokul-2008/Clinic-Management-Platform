@@ -1,47 +1,20 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Fallback logic to check multiple model names if one throws a 404/not supported error
-const generateWithFallback = async (genAI, prompt) => {
-  const modelsToTry = [
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
-    'gemini-pro',
-    'gemini-1.0-pro'
-  ];
-  let lastError = null;
-
-  for (const modelName of modelsToTry) {
-    try {
-      console.log(`[AI] Trying model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      if (text) {
-        console.log(`[AI] Success with model: ${modelName}`);
-        return text;
-      }
-    } catch (err) {
-      const errMsg = String(err?.message || err || '').toLowerCase();
-      console.warn(`[AI Warning] Model ${modelName} failed:`, errMsg);
-      lastError = err;
-      
-      // If it is a clear API key validation issue, throw it immediately to avoid looping
-      if (
-        errMsg.includes('api key') || 
-        errMsg.includes('api_key') || 
-        errMsg.includes('key is invalid') || 
-        errMsg.includes('unauthorized') || 
-        errMsg.includes('400')
-      ) {
-        throw err;
-      }
-      // Otherwise, continue to try the next model in the fallback cascade
-    }
+// Helper function to validate and retrieve the GEMINI_API_KEY environment variable.
+// Logs a clear backend warning if the key is missing or unconfigured.
+const getGeminiApiKey = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey.trim() === '' || apiKey.includes('your_') || apiKey.includes('placeholder')) {
+    console.error('[AI Service Warning] GEMINI_API_KEY environment variable is missing, empty, or unconfigured.');
+    return null;
   }
-  throw lastError || new Error('All models failed to resolve the prompt');
+  return apiKey;
 };
 
+// Standard supported model for Google Generative AI
+const AI_MODEL_NAME = 'gemini-1.5-flash';
+
+// 1. AI Prescription Analysis & Clinical Advice Controller
 export const analyzePrescription = async (req, res) => {
   try {
     const { diagnosis, symptoms, prescriptions } = req.body;
@@ -49,11 +22,11 @@ export const analyzePrescription = async (req, res) => {
       return res.status(400).json({ message: 'Diagnosis description is required.' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = getGeminiApiKey();
 
-    // Check if key is configured
-    if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
-      console.log('Gemini API key not found. Providing mock clinical advice fallback...');
+    // If key is missing or unconfigured, return friendly mock clinical advice
+    if (!apiKey) {
+      console.log('[AI Info] Using mock clinical advice fallback (GEMINI_API_KEY unconfigured).');
       const mockAdvice = {
         recommendations: `1. Ensure proper rest and hydration (at least 2-3 liters of water daily).\n2. Monitor vital signs regularly (especially temperature and BP).\n3. Avoid strenuous physical activity until recovery.`,
         warnings: `No drug interactions found for: ${
@@ -65,6 +38,7 @@ export const analyzePrescription = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: AI_MODEL_NAME });
 
     const prompt = `
       You are a clinical assistant AI. Review this patient case and output a JSON response.
@@ -80,7 +54,9 @@ export const analyzePrescription = async (req, res) => {
       }
     `;
 
-    const text = await generateWithFallback(genAI, prompt);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     // Robustly extract JSON block to avoid failures due to LLM preambles or markdown fences
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -90,24 +66,25 @@ export const analyzePrescription = async (req, res) => {
     const cleanText = jsonMatch[0];
     const parsed = JSON.parse(cleanText);
 
-    res.status(200).json(parsed);
+    return res.status(200).json(parsed);
   } catch (error) {
-    console.error('AI Assistant error, falling back to mock clinical advice:', error);
+    // Log technical errors ONLY to backend/server console
+    console.error('[AI Prescription Analysis Error]:', error);
     const { diagnosis, prescriptions } = req.body;
     
-    // Provide a graceful fallback to prevent frontend crashes
+    // Provide a graceful fallback without exposing raw API errors, stack traces, or model names to end users
     const fallbackAdvice = {
       recommendations: `1. Ensure proper rest and hydration (at least 2-3 liters of water daily).\n2. Monitor vital signs regularly (especially temperature and BP).\n3. Avoid strenuous physical activity until recovery.`,
       warnings: `No drug interactions found for: ${
         prescriptions?.length > 0 ? prescriptions.map((p) => p.drugName).join(', ') : 'None'
       }. Verify that the patient has no historical allergies to these substances.`,
-      carePlan: `Standard clinical support plan for "${diagnosis || 'this condition'}". Scheduled follow-up consultation in 5-7 days if symptoms persist. (Note: Running in offline/fallback mode due to API gateway error: ${error.message})`
+      carePlan: `Standard clinical support plan for "${diagnosis || 'this condition'}". Scheduled follow-up consultation in 5-7 days if symptoms persist.`
     };
-    res.status(200).json(fallbackAdvice);
+    return res.status(200).json(fallbackAdvice);
   }
 };
 
-// AI Symptom Checker
+// 2. AI Symptom Checker Controller
 export const checkSymptoms = async (req, res) => {
   try {
     const { symptoms } = req.body;
@@ -115,10 +92,10 @@ export const checkSymptoms = async (req, res) => {
       return res.status(400).json({ message: 'Symptoms description is required.' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = getGeminiApiKey();
 
-    if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
-      console.log('Gemini API key not found. Providing mock symptom check advice...');
+    if (!apiKey) {
+      console.log('[AI Info] Using mock symptom check fallback (GEMINI_API_KEY unconfigured).');
       const mockCheck = {
         possibleConditions: ['Mild Tension Headache', 'Seasonal Allergies', 'Common Cold'],
         recommendedDepartment: 'General Medicine / Outpatient Clinic',
@@ -129,6 +106,7 @@ export const checkSymptoms = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: AI_MODEL_NAME });
 
     const prompt = `
       You are a clinical symptom-triage assistant. Review this symptom description and output a JSON response.
@@ -143,28 +121,30 @@ export const checkSymptoms = async (req, res) => {
       }
     `;
 
-    const text = await generateWithFallback(genAI, prompt);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error("No valid JSON structure returned from model");
     }
     const parsed = JSON.parse(jsonMatch[0]);
-    res.status(200).json(parsed);
+    return res.status(200).json(parsed);
   } catch (error) {
-    console.error('Symptom Checker error, falling back to mock advice:', error);
-    const { symptoms } = req.body;
+    // Log technical errors ONLY to backend/server console
+    console.error('[AI Symptom Checker Error]:', error);
     const fallback = {
-      possibleConditions: ['Symptom Analysis Pending'],
+      possibleConditions: ['Clinical Evaluation Recommended'],
       recommendedDepartment: 'General Medicine',
       urgency: 'Medium',
-      explanation: `We encountered an issue checking symptoms. Please proceed to book an appointment with our general practitioner for a clinical evaluation. (Error: ${error.message})`
+      explanation: 'Unable to analyze symptoms automatically at this time. Please proceed to book an appointment with our general practitioner for a clinical evaluation.'
     };
-    res.status(200).json(fallback);
+    return res.status(200).json(fallback);
   }
 };
 
-// AI Medical Report Summarizer
+// 3. AI Medical Report Summarizer Controller
 export const summarizeReport = async (req, res) => {
   try {
     const { reportText } = req.body;
@@ -172,10 +152,10 @@ export const summarizeReport = async (req, res) => {
       return res.status(400).json({ message: 'Report text is required.' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = getGeminiApiKey();
 
-    if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
-      console.log('Gemini API key not found. Providing mock report summary...');
+    if (!apiKey) {
+      console.log('[AI Info] Using mock report summary fallback (GEMINI_API_KEY unconfigured).');
       const mockSummary = {
         keyFindings: 'The report shows normal cardiac rhythm with minor elevations in blood pressure. Blood work shows healthy hemoglobin counts.',
         suspectedDiagnosis: 'Mild Hypertension',
@@ -186,6 +166,7 @@ export const summarizeReport = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: AI_MODEL_NAME });
 
     const prompt = `
       You are a clinical report summarization assistant. Summarize the following medical report and output a JSON response.
@@ -200,52 +181,70 @@ export const summarizeReport = async (req, res) => {
       }
     `;
 
-    const text = await generateWithFallback(genAI, prompt);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error("No valid JSON structure returned from model");
     }
     const parsed = JSON.parse(jsonMatch[0]);
-    res.status(200).json(parsed);
+    return res.status(200).json(parsed);
   } catch (error) {
-    console.error('Report summarizer error, falling back to mock summary:', error);
+    // Log technical errors ONLY to backend/server console
+    console.error('[AI Report Summarizer Error]:', error);
     const { reportText } = req.body;
     const fallback = {
-      keyFindings: `We were unable to parse the report automatically. Raw text snippet: "${reportText.substring(0, 150)}..."`,
-      suspectedDiagnosis: 'Needs Manual Review',
+      keyFindings: `Report text registered. Snippet: "${reportText ? reportText.substring(0, 150) : ''}..."`,
+      suspectedDiagnosis: 'Manual Review Required',
       recommendedMedications: 'Please refer to the raw report text.',
-      followUpPlan: `Consult physician for clarification. (Error: ${error.message})`
+      followUpPlan: 'Consult attending physician for clarification.'
     };
-    res.status(200).json(fallback);
+    return res.status(200).json(fallback);
   }
 };
 
-// AI Healthcare Chatbot
+// Helper function to build fallback chatbot replies for basic hospital questions
+const getFallbackChatbotReply = (message) => {
+  const lower = message ? message.toLowerCase() : '';
+
+  if (lower.includes('time') || lower.includes('hour') || lower.includes('open') || lower.includes('timing')) {
+    return "CarePulse Clinic is open Monday through Friday, 9:00 AM to 5:00 PM, and Saturday from 9:00 AM to 1:00 PM. We are closed on Sundays.";
+  }
+  if (lower.includes('book') || lower.includes('appoint') || lower.includes('schedule')) {
+    return "To book an appointment, navigate to the 'Book Consultations' tab in your patient portal, select a doctor, pick an available date and time slot, and confirm your booking.";
+  }
+  if (lower.includes('doctor') || lower.includes('special') || lower.includes('physician')) {
+    return "We have specialists in Cardiology, Neurology, Pediatrics, Orthopedics, and General Medicine. You can view doctor profiles and schedule appointments directly in your portal.";
+  }
+  if (lower.includes('bill') || lower.includes('pay') || lower.includes('invoice')) {
+    return "Invoices can be viewed and settled under the 'Invoices & Payments' tab in your patient portal using our secure Stripe checkout.";
+  }
+
+  // Exact user-specified fallback message when AI service is unavailable
+  return "I'm currently unable to connect to the AI service. I can still help with clinic timings, appointments, doctors, billing, and general hospital information. Please try again in a few minutes.";
+};
+
+// 4. AI Healthcare Chatbot Controller
 export const healthcareChatbot = async (req, res) => {
+  const { message, history } = req.body;
+  if (!message) {
+    return res.status(400).json({ message: 'User message is required.' });
+  }
+
+  const apiKey = getGeminiApiKey();
+
+  // If GEMINI_API_KEY is missing or unconfigured, return helpful fallback without exposing raw API errors
+  if (!apiKey) {
+    console.log('[AI Info] Using chatbot fallback (GEMINI_API_KEY unconfigured).');
+    const reply = getFallbackChatbotReply(message);
+    return res.status(200).json({ reply });
+  }
+
   try {
-    const { message, history } = req.body;
-    if (!message) {
-      return res.status(400).json({ message: 'User message is required.' });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
-      console.log('Gemini API key not found. Providing mock chatbot reply...');
-      let mockReply = "Hello! I am the CarePulse Clinic Assistant. Our clinic hours are Monday to Friday (9am-5pm) and Saturday (9am-1pm). You can book appointments directly via the 'Book Consultations' tab in your portal. For complex medical issues, please schedule a session with our doctors.";
-      const lower = message.toLowerCase();
-      if (lower.includes('time') || lower.includes('hour') || lower.includes('open')) {
-        mockReply = "CarePulse Clinic is open Monday through Friday, 9:00 AM to 5:00 PM, and Saturday from 9:00 AM to 1:00 PM. We are closed on Sundays.";
-      } else if (lower.includes('book') || lower.includes('appoint')) {
-        mockReply = "To book an appointment, go to the 'Book Consultations' tab in your portal, select a doctor and date, and choose a time slot. Once scheduled, it will immediately show in your timeline.";
-      } else if (lower.includes('doctor') || lower.includes('special')) {
-        mockReply = "We have specialists in Cardiology, Neurology, Pediatrics, Orthopedics, and General Medicine. You can view them and schedule appointments inside your portal.";
-      }
-      return res.status(200).json({ reply: mockReply });
-    }
-
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: AI_MODEL_NAME });
 
     let historyPrompt = "";
     if (history && history.length > 0) {
@@ -260,11 +259,12 @@ export const healthcareChatbot = async (req, res) => {
       - Departments: General Medicine, Cardiology, Pediatrics, Neurology, Orthopedics, Pharmacy.
       - Location: CarePulse Medical Hub, Suite 101.
       - Booking Process: Patients can book appointments online using the 'Book Consultations' tab in this Portal dashboard.
+      - Billing & Payments: Patients can view invoices and pay online via Stripe under 'Invoices & Payments'.
       - Pharmacy Inventory: We have a live inventory tracking system. Doctors prescribe medicines, and stock is automatically decremented.
-      - Doctors: Attending specialists include Dr. Stephen Strange and other specialists.
+      - Doctors: Attending specialists include Dr. Stephen Strange and other registered specialists.
       
       Instructions:
-      - Answer patient questions about clinic hours, timings, departments, available services, and general portal bookings.
+      - Answer patient questions about clinic hours, timings, departments, available services, billing, and portal bookings.
       - Keep answers warm, friendly, concise, and helpful.
       - **Critical Rule**: For complex medical diagnoses, treatment recommendations, drug interaction checks, or specific medication queries, explain that you are an AI assistant and cannot make medical decisions. Politely suggest they book a consultation with one of our specialized doctors using the scheduling portal.
       
@@ -273,14 +273,17 @@ export const healthcareChatbot = async (req, res) => {
       Assistant:
     `;
 
-    const text = await generateWithFallback(genAI, prompt);
-    const reply = text.trim();
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const reply = response.text().trim();
     
-    res.status(200).json({ reply });
+    return res.status(200).json({ reply });
   } catch (error) {
-    console.error('Chatbot error, falling back to mock reply:', error);
-    res.status(200).json({
-      reply: `I am currently operating in offline backup mode due to an API connectivity issue. I can help with general clinic questions. We are open Mon-Fri (9:00 AM - 5:00 PM) and Sat (9:00 AM - 1:00 PM). (Error detail: ${error.message})`
-    });
+    // Log technical errors ONLY to backend/server console
+    console.error('[AI Chatbot Service Error]:', error);
+
+    // Return friendly fallback message without exposing API error, stack traces, or internal model names
+    const reply = getFallbackChatbotReply(message);
+    return res.status(200).json({ reply });
   }
 };
